@@ -44,8 +44,6 @@ World::World() {
     glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, 9 * sizeof(float), (void*) (6 * sizeof(float)));
     glBindBuffer(GL_ARRAY_BUFFER, 0);
     glBindVertexArray(0);
-    std::string a = "pic.png";
-    thingContainers[static_cast<int>(Thing::wool_white)] = std::make_unique<StaticBlockFragmentContainer>(a);
 }
 World::~World() {
     glDeleteVertexArrays(1, &vaoid);
@@ -57,18 +55,8 @@ void World::draw(Player& player) {
     skyBox->draw(projection * glm::mat4(glm::mat3(view))); // TODO: need to be optimized()()
     sf::Shader::bind(&shader);
     shader.setUniform("VP", sf::Glsl::Mat4(&vp[0][0]));
-//    glBindVertexArray(vaoid);
-//    glDrawArrays(GL_TRIANGLES, 0, 6000);
-//    glBindVertexArray(0);
-    ((StaticBlockFragmentContainer*) thingContainers[static_cast<int>(Thing::wool_white)].get())->draw();
+    glBindVertexArray(vaoid);
+    glDrawArrays(GL_TRIANGLES, 0, 6000);
+    glBindVertexArray(0);
     sf::Shader::bind(nullptr);
-}
-void World::placeThing(Thing thing, sf::Vector3i position) {
-    using CType = ThingContainerTypeType;
-    IThingContainer* container = thingContainers[static_cast<int>(thing)].get();
-    CType containerType = container->typeType();
-    if (containerType == CType::StaticBlock || containerType == CType::DynamicBlock) {
-        auto container1 = static_cast<IBlockFragmentContainer*>(container);
-        container1->addBlock(position);
-    }
 }

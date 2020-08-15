@@ -3,7 +3,6 @@
 #include <iostream>
 #include <optional>
 #include <SFML/Graphics.hpp>
-#include "WorldReferenceHack/WorldReferenceHack.hpp"
 #include "Player/Player.hpp"
 #include "World/World.hpp"
 #include "ogl.hpp"

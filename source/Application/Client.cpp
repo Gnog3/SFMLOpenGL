@@ -22,35 +22,6 @@ Client::Client() {
     window.setMouseCursorGrabbed(true);
     window.setMouseCursorVisible(false);
     world = std::make_unique<World>();
-    WRef::setWorld(world.get());
-
-//    world->placeThing(Thing::wool_white, sf::Vector3i(-10, -10, -10));
-//    world->placeThing(Thing::wool_white, sf::Vector3i(0, 0, 0));
-//    world->placeThing(Thing::wool_white, sf::Vector3i(1, 1, 0));
-//    world->placeThing(Thing::wool_white, sf::Vector3i(2, 2, 0));
-//    world->placeThing(Thing::wool_white, sf::Vector3i(3, 3, 0));
-//    world->placeThing(Thing::wool_white, sf::Vector3i(4, 4, 0));
-#ifdef DEBUG
-    uint32_t _amount_ = 0;
-#endif
-    std::cout << "Putting blocks..." << std::endl;
-    sf::Clock clock;
-    for (int x = 0; x < 100; x++) {
-        for (int y = 0; y < 100; y++) {
-            for (int z = 0; z < 100; z++) {
-                
-                world->placeThing(Thing::wool_white,
-                                  sf::Vector3i(x * 2, y * 2, z * 2));
-#ifdef DEBUG
-                _amount_++;
-                if (_amount_ % 1000 == 0)
-                    std::cout << _amount_ / 1000000.0f * 100.0f << "%" << std::endl;
-#endif
-            }
-        }
-    }
-    world->placeThing(Thing::wool_white, sf::Vector3i(-10, -10, -10));
-    std::cout << "It took " << clock.getElapsedTime().asSeconds() << "s" << std::endl;
 }
 
 Client::~Client() {
