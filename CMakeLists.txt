@@ -16,7 +16,6 @@ add_executable(SFMLOpenGL
         source/Application/World/SkyBox/SkyBox.hpp
         source/Application/World/OpenGLWrappers/OpenGLModel/OpenGLModel.cpp
         source/Application/World/OpenGLWrappers/OpenGLModel/OpenGLModel.hpp
-        source/Application/World/OpenGLWrappers/VBO/VBO.hpp
         source/Application/World/World.cpp
         source/Application/World/World.hpp
         source/Application/World/Texture/Texture.cpp
@@ -24,8 +23,7 @@ add_executable(SFMLOpenGL
         source/Application/Vector3LessThan/Vector3LessThan.hpp
         source/Application/World/VertexOperations/VertexOperations.cpp
         source/Application/World/VertexOperations/VertexOperations.hpp
-        source/Application/Vector3LessThan/Vector3LessThan.cpp
-        )
+        source/Application/Vector3LessThan/Vector3LessThan.cpp)
 
 
 target_link_libraries(SFMLOpenGL
