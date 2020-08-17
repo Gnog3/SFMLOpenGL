@@ -8,3 +8,12 @@ bool Vector3LessThan<T>::operator()(const sf::Vector3<T>& v1, const sf::Vector3<
     if (v1.y > v2.y) return false;
     return v1.z < v2.z;
 }
+
+template<>
+bool Vector3LessThan<uint8_t>::operator()(const sf::Vector3<uint8_t>& v1, const sf::Vector3<uint8_t>& v2) const {
+    uint32_t first = *(uint32_t*) &v1;
+    uint32_t second = *(uint32_t*) &v2;
+    first &= 0xFFFFFFu;
+    second &= 0xFFFFFFu;
+    return first < second;
+}
