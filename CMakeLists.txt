@@ -14,8 +14,8 @@ add_executable(SFMLOpenGL
         source/Application/Player/Player.hpp
         source/Application/World/SkyBox/SkyBox.cpp
         source/Application/World/SkyBox/SkyBox.hpp
-        source/Application/World/OpenGLWrappers/OpenGLModel/OpenGLModel.cpp
-        source/Application/World/OpenGLWrappers/OpenGLModel/OpenGLModel.hpp
+        source/Application/World/OpenGLModel/OpenGLModel.cpp
+        source/Application/World/OpenGLModel/OpenGLModel.hpp
         source/Application/World/World.cpp
         source/Application/World/World.hpp
         source/Application/World/Texture/Texture.cpp
@@ -23,7 +23,16 @@ add_executable(SFMLOpenGL
         source/Application/Vector3LessThan/Vector3LessThan.hpp
         source/Application/World/VertexOperations/VertexOperations.cpp
         source/Application/World/VertexOperations/VertexOperations.hpp
-        source/Application/Vector3LessThan/Vector3LessThan.cpp)
+        source/Application/Vector3LessThan/Vector3LessThan.cpp
+        source/Application/World/Chunk/Chunk.cpp
+        source/Application/World/Chunk/Chunk.hpp
+        source/Application/World/Block/Block.cpp
+        source/Application/World/Block/Block.hpp
+        source/Application/World/ChunkMap.hpp
+        source/Application/World/Adjoins/Adjoins.hpp
+        source/Application/World/Adjoins/Adjoins.cpp
+        source/Application/Direction.hpp
+        source/Application/static_for/static_for.hpp)
 
 
 target_link_libraries(SFMLOpenGL

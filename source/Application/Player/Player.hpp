@@ -8,9 +8,9 @@ class Player {
         float horizontalAngle = 3.14f;
         float verticalAngle = 0.0f;
         float FoV = 70.0f;
-        float cameraSpeed = 30.0f;
+        float cameraSpeed = 10.0f;
         float mouseSpeed = 0.002f;
-        sf::Vector3<double> playerPos = sf::Vector3<double>(5, 5, 5);
+        sf::Vector3<double> playerPos = sf::Vector3<double>();
         
         glm::vec3 direction = glm::vec3();
         glm::mat4 view = glm::mat4();
