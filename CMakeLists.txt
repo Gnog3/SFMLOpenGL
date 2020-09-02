@@ -3,15 +3,47 @@ project(SFMLOpenGL)
 
 set(CMAKE_CXX_STANDARD 20)
 include_directories(SFML/include glew/include glm/glm)
-link_directories(SFML/lib glew/bin/Release/x64)
+link_directories(SFML/lib glew/lib/Release/x64)
 add_definitions(-DDEBUG)
-add_executable(SFMLOpenGL source/main.cpp source/Application/Client.cpp source/Application/Client.hpp source/Application/ogl.hpp source/Application/Player/Player.cpp source/Application/Player/Player.hpp source/Application/World/SkyBox/SkyBox.cpp source/Application/World/SkyBox/SkyBox.hpp source/Application/World/OpenGLWrappers/OpenGLModel/OpenGLModel.cpp source/Application/World/OpenGLWrappers/OpenGLModel/OpenGLModel.hpp source/Application/World/OpenGLWrappers/VBO/VBO.hpp source/Application/World/World.cpp source/Application/World/World.hpp source/Application/Thing.hpp source/Application/World/Texture/Texture.cpp source/Application/World/Texture/Texture.hpp source/Application/World/StaticBlockFragmentContainer/StaticBlockFragmentContainer.cpp source/Application/World/StaticBlockFragmentContainer/StaticBlockFragmentContainer.hpp source/Application/World/IThingContainer/IThingContainer.hpp source/Application/World/StaticBlockFragment/StaticBlockFragment.cpp source/Application/World/StaticBlockFragment/StaticBlockFragment.hpp source/Application/World/ThingContainers.hpp source/Application/World/IBlockFragmentContainer.hpp source/Application/Things.hpp source/Application/WorldReferenceHack/WorldReferenceHack.hpp source/Application/WorldReferenceHack/WorldReferenceHack.cpp source/Application/Vector3LessThan/Vector3LessThan.hpp source/Application/World/VertexOperations/VertexOperations.cpp source/Application/World/VertexOperations/VertexOperations.hpp source/Application/Vector3LessThan/Vector3LessThan.cpp source/Application/World/IThingContainer/IThingContainer.cpp)
+set(CMAKE_EXE_LINKER_FLAGS "-static-libgcc -static-libstdc++ -static")
+add_executable(SFMLOpenGL
+        source/main.cpp
+        source/Application/Client.cpp
+        source/Application/Client.hpp
+        source/Application/ogl.hpp
+        source/Application/Player/Player.cpp
+        source/Application/Player/Player.hpp
+        source/Application/World/SkyBox/SkyBox.cpp
+        source/Application/World/SkyBox/SkyBox.hpp
+        source/Application/World/OpenGLModel/OpenGLModel.cpp
+        source/Application/World/OpenGLModel/OpenGLModel.hpp
+        source/Application/World/World.cpp
+        source/Application/World/World.hpp
+        source/Application/World/Texture/Texture.cpp
+        source/Application/World/Texture/Texture.hpp
+        source/Application/Vector3LessThan/Vector3LessThan.hpp
+        source/Application/World/VertexOperations/VertexOperations.cpp
+        source/Application/World/VertexOperations/VertexOperations.hpp
+        source/Application/World/Chunk/Chunk.cpp
+        source/Application/World/Chunk/Chunk.hpp
+        source/Application/World/Block/Block.cpp
+        source/Application/World/Block/Block.hpp
+        source/Application/World/ChunkMap.hpp
+        source/Application/World/Adjoins/Adjoins.hpp
+        source/Application/World/Adjoins/Adjoins.cpp
+        source/Application/Direction.hpp
+        source/Application/static_for/static_for.hpp
+        source/Application/Timer/Timer.cpp
+        source/Application/Timer/Timer.hpp
+        source/Application/DestructionTimer.hpp
+        source/Application/NotConstructed.hpp source/Application/World/Crosshair/Crosshair.cpp source/Application/World/Crosshair/Crosshair.hpp)
 
 
 target_link_libraries(SFMLOpenGL
         sfml-audio
         sfml-graphics
-        sfml-system
         sfml-window
+        sfml-system
         glew32
-        opengl32)
+        opengl32
+        winmm)
