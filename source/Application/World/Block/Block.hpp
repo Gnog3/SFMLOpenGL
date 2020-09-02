@@ -4,6 +4,7 @@
 #include <cstdint>
 #include <vector>
 #include <array>
+#include <cassert>
 #include "../../static_for/static_for.hpp"
 #include "../../Direction.hpp"
 #include "../Adjoins/Adjoins.hpp"
@@ -30,6 +31,7 @@ class Block {
     protected:
         uint8_t id;
     public:
+        static sf::Vector3<uint8_t> getPositionChunkRel(sf::Vector3<int64_t> blockPosition);
         explicit Block(uint8_t id);
         [[nodiscard]] uint8_t getId() const;
         virtual bool isBlock();
