@@ -6,12 +6,16 @@
 #include "Player/Player.hpp"
 #include "World/World.hpp"
 #include "ogl.hpp"
+#include "World/Block/Block.hpp"
+#include "Timer/Timer.hpp"
+#include "NotConstructed.hpp"
 class Client {
     private:
         sf::RenderWindow window;
         Player player;
         sf::Clock deltaTimeClock;
-        std::unique_ptr<World> world;
+        NotConstructed<World, true> world;
+        RayCastResult rayCastResult;
         float deltaTime = 0;
     public:
         Client();

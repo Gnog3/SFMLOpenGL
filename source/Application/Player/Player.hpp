@@ -8,8 +8,9 @@ class Player {
         float horizontalAngle = 3.14f;
         float verticalAngle = 0.0f;
         float FoV = 70.0f;
-        float cameraSpeed = 10.0f;
+        float cameraSpeed = 12.5f;
         float mouseSpeed = 0.002f;
+        bool grabbed = true;
         sf::Vector3<double> playerPos = sf::Vector3<double>();
         
         glm::vec3 direction = glm::vec3();
@@ -27,8 +28,10 @@ class Player {
     public:
         void computeMatricesMouse(sf::Window& window);
         void computePlayerPosKeyboard(sf::Window& window, float deltaTime);
+        void setGrabbed(bool grabbed_);
         glm::mat4 getViewMatrix();
         glm::mat4 getProjectionMatrix();
         glm::mat4 getVpMatrix();
         sf::Vector3<double> getPlayerPos();
+        sf::Vector3f getDirection() const;
 };

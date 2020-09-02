@@ -3,8 +3,9 @@ project(SFMLOpenGL)
 
 set(CMAKE_CXX_STANDARD 20)
 include_directories(SFML/include glew/include glm/glm)
-link_directories(SFML/lib glew/bin/Release/x64)
+link_directories(SFML/lib glew/lib/Release/x64)
 add_definitions(-DDEBUG)
+set(CMAKE_EXE_LINKER_FLAGS "-static-libgcc -static-libstdc++ -static")
 add_executable(SFMLOpenGL
         source/main.cpp
         source/Application/Client.cpp
@@ -23,7 +24,6 @@ add_executable(SFMLOpenGL
         source/Application/Vector3LessThan/Vector3LessThan.hpp
         source/Application/World/VertexOperations/VertexOperations.cpp
         source/Application/World/VertexOperations/VertexOperations.hpp
-        source/Application/Vector3LessThan/Vector3LessThan.cpp
         source/Application/World/Chunk/Chunk.cpp
         source/Application/World/Chunk/Chunk.hpp
         source/Application/World/Block/Block.cpp
@@ -32,13 +32,18 @@ add_executable(SFMLOpenGL
         source/Application/World/Adjoins/Adjoins.hpp
         source/Application/World/Adjoins/Adjoins.cpp
         source/Application/Direction.hpp
-        source/Application/static_for/static_for.hpp)
+        source/Application/static_for/static_for.hpp
+        source/Application/Timer/Timer.cpp
+        source/Application/Timer/Timer.hpp
+        source/Application/DestructionTimer.hpp
+        source/Application/NotConstructed.hpp source/Application/World/Crosshair/Crosshair.cpp source/Application/World/Crosshair/Crosshair.hpp)
 
 
 target_link_libraries(SFMLOpenGL
         sfml-audio
         sfml-graphics
-        sfml-system
         sfml-window
+        sfml-system
         glew32
-        opengl32)
+        opengl32
+        winmm)

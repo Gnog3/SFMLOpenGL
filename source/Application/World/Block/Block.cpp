@@ -1,3 +1,4 @@
+#include <chrono>
 #include "Block.hpp"
 
 constexpr std::array<float, 3> Block::getOffset(Direction direction, uint8_t stage) {
@@ -44,6 +45,21 @@ constexpr std::array<float, 3> Block::getOffset(Direction direction, uint8_t sta
     return startingPoint;
 }
 
+sf::Vector3<uint8_t> Block::getPositionChunkRel(sf::Vector3<int64_t> blockPosition) {
+    blockPosition.x = blockPosition.x < 0 ? (16 + (blockPosition.x % 16)) % 16 : blockPosition.x % 16;
+    blockPosition.y = blockPosition.y < 0 ? (16 + (blockPosition.y % 16)) % 16 : blockPosition.y % 16;
+    blockPosition.z = blockPosition.z < 0 ? (16 + (blockPosition.z % 16)) % 16 : blockPosition.z % 16;
+#ifdef DEBUG
+    assert(blockPosition.x <= 15);
+    assert(blockPosition.y <= 15);
+    assert(blockPosition.z <= 15);
+    assert(blockPosition.x >= 0);
+    assert(blockPosition.y >= 0);
+    assert(blockPosition.z >= 0);
+#endif
+    return (sf::Vector3<uint8_t>) blockPosition;
+}
+
 Block::Block(uint8_t id) : id(id) {}
 
 uint8_t Block::getId() const {
@@ -58,8 +74,6 @@ void Block::genVertices(sf::Vector3<uint8_t> blockPosition, Adjoins adjoins, std
     uint32_t adjoinsAmount = adjoins.amount();
     if (adjoinsAmount == 6)
         return;
-    vertices.reserve(vertices.size() + (6 * 4 * 8 - adjoinsAmount * 4 * 8));
-    indices.reserve(indices.size() + (6 * 6 - adjoinsAmount * 6));
     uint32_t indexBase = vertices.size() / 8;
     Adjoins sides = ~adjoins;
     constexpr bool (Adjoins::* funcs[])() const {
@@ -72,12 +86,12 @@ void Block::genVertices(sf::Vector3<uint8_t> blockPosition, Adjoins adjoins, std
     };
     uint32_t x = id % 16;
     uint32_t y = id / 16;
-    sf::Vector2f texCoords((float) x / 16, (float) y / 16);
+    sf::Vector2f texCoords((float) x / 16.0f, (float) y / 16.0f);
     for_range<0, 6>([&]<auto i>() {
         if ((sides.*funcs[i])()) {
             for_range<0, 4>([&]<auto j>() {
                 constexpr vector3f offset = getOffset(static_cast<Direction>(i), j);
-                std::array<float, 8> arr;
+                std::array<float, 8> arr{};
                 arr[0] = (float) blockPosition.x + offset[0];
                 arr[1] = (float) blockPosition.y + offset[1];
                 arr[2] = (float) blockPosition.z + offset[2];
@@ -88,16 +102,27 @@ void Block::genVertices(sf::Vector3<uint8_t> blockPosition, Adjoins adjoins, std
                 arr[7] = texCoords.y + texCoordsOffset[j][1];
                 vertices.insert(vertices.end(), arr.begin(), arr.end());
             });
-            std::array<uint32_t, 6> arr;
-            arr[0] = indexBase + 0;
-            arr[1] = indexBase + 1;
-            arr[2] = indexBase + 2;
-            arr[3] = indexBase + 1;
-            arr[4] = indexBase + 3;
-            arr[5] = indexBase + 2;
-            indices.insert(indices.end(), arr.begin(), arr.end());
-            indexBase += 4;
+            if constexpr (Down == static_cast<Direction>(i)) {
+                std::array<uint32_t, 6> arr{};
+                arr[0] = indexBase + 1;
+                arr[1] = indexBase + 2;
+                arr[2] = indexBase + 0;
+                arr[3] = indexBase + 3;
+                arr[4] = indexBase + 2;
+                arr[5] = indexBase + 1;
+                indices.insert(indices.end(), arr.begin(), arr.end());
+                indexBase += 4;
+            } else {
+                std::array<uint32_t, 6> arr{};
+                arr[0] = indexBase + 0;
+                arr[1] = indexBase + 2;
+                arr[2] = indexBase + 1;
+                arr[3] = indexBase + 1;
+                arr[4] = indexBase + 2;
+                arr[5] = indexBase + 3;
+                indices.insert(indices.end(), arr.begin(), arr.end());
+                indexBase += 4;
+            }
         }
     });
 }
-
