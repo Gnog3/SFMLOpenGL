@@ -3,19 +3,19 @@
 World::World() {
     glEnable(GL_DEPTH_TEST);
     
-    chunkShader.loadFromFile("Shaders/chunk.vertex.glsl", "Shaders/chunk.fragment.glsl");
-    skyBox = std::make_unique<SkyBox>("Shaders/skybox.vertex.glsl", "Shaders/skybox.fragment.glsl",
+    chunkShader.loadFromFile("Data/Shaders/chunk.vertex.glsl", "Data/Shaders/chunk.fragment.glsl");
+    skyBox = std::make_unique<SkyBox>("Data/Shaders/skybox.vertex.glsl", "Data/Shaders/skybox.fragment.glsl",
                                       std::vector<std::string>{
-                                              "SkyBoxTextures/right.bmp",
-                                              "SkyBoxTextures/left.bmp",
-                                              "SkyBoxTextures/top.bmp",
-                                              "SkyBoxTextures/bottom.bmp",
-                                              "SkyBoxTextures/front.bmp",
-                                              "SkyBoxTextures/back.bmp"
+                                              "Data/SkyBoxTextures/right.bmp",
+                                              "Data/SkyBoxTextures/left.bmp",
+                                              "Data/SkyBoxTextures/top.bmp",
+                                              "Data/SkyBoxTextures/bottom.bmp",
+                                              "Data/SkyBoxTextures/front.bmp",
+                                              "Data/SkyBoxTextures/back.bmp"
                                       });
     crosshair.construct();
     sf::Image image;
-    image.loadFromFile("texture.png");
+    image.loadFromFile("Data/texture.png");
     sf::Vector2u size = image.getSize();
     glGenTextures(1, &blockTexture);
     glBindTexture(GL_TEXTURE_2D, blockTexture);
