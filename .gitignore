@@ -3,4 +3,4 @@ cmake-build-*/
 glew/
 glm/
 SFML/
-
+c.bat
