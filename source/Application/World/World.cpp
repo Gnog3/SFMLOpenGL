@@ -1,9 +1,10 @@
 #include "World.hpp"
 
+
 World::World() {
     glEnable(GL_DEPTH_TEST);
     
-    chunkShader.loadFromFile("Data/Shaders/chunk.vertex.glsl", "Data/Shaders/chunk.fragment.glsl");
+    chunkShader.loadFromFile("Data/Shaders/plane.vertex.glsl", "Data/Shaders/plane.fragment.glsl");
     skyBox = std::make_unique<SkyBox>("Data/Shaders/skybox.vertex.glsl", "Data/Shaders/skybox.fragment.glsl",
                                       std::vector<std::string>{
                                               "Data/SkyBoxTextures/right.bmp",
@@ -20,9 +21,38 @@ World::World() {
     glGenTextures(1, &blockTexture);
     glBindTexture(GL_TEXTURE_2D, blockTexture);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    float data[] = {
+            0.0f, 0.0f, 0.0f, 0.0f,
+            1.0f, 0.0f, 1.0f / 16.0f, 0.0f,
+            0.0f, 1.0f, 0.0f, 1.0f / 16.0f,
+            1.0f, 0.0f, 1.0f / 16.0f, 0.0f,
+            0.0f, 1.0f, 0.0f, 1.0f / 16.0f,
+            1.0f, 1.0f, 1.0f / 16.0f, 1.0f / 16.0f,
+//            0.0f, 0.0f, 0.0f, 0.0f,
+//            0.0f, 0.0f, 0.0f, 0.0f,
+//
+//            1.0f, 0.0f, 1.0f / 16.0f, 0.0f,
+//            1.0f, 0.0f, 1.0f / 16.0f, 0.0f,
+//
+//            0.0f, 1.0f, 0.0f, 1.0f / 16.0f,
+//            0.0f, 1.0f, 0.0f, 1.0f / 16.0f,
+//
+//            1.0f, 0.0f, 1.0f / 16.0f, 0.0f,
+//            1.0f, 0.0f, 1.0f / 16.0f, 0.0f,
+//            0.0f, 1.0f, 0.0f, 1.0f / 16.0f,
+//
+//            0.0f, 1.0f, 0.0f, 1.0f / 16.0f,
+//            1.0f, 1.0f, 1.0f / 16.0f, 1.0f / 16.0f,
+//
+//            1.0f, 1.0f, 1.0f / 16.0f, 1.0f / 16.0f
+    };
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, size.x, size.y, 0, GL_RGBA, GL_UNSIGNED_BYTE, image.getPixelsPtr());
     glGenerateMipmap(GL_TEXTURE_2D);
     glBindTexture(GL_TEXTURE_2D, 0);
+    glGenBuffers(1, &planeVbo);
+    glBindBuffer(GL_ARRAY_BUFFER, planeVbo);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(data), data, GL_STATIC_DRAW);
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
 }
 World::~World() = default;
 Block* World::getBlock(sf::Vector3<int64_t> position) {
@@ -139,7 +169,7 @@ void World::placeBlock(std::unique_ptr<Block> block, sf::Vector3<int64_t> positi
     try {
         chunk = &chunkMap.at(chunkPosition);
     } catch (std::out_of_range&) {
-        chunk = &chunkMap.emplace(sf::Vector3i(chunkPosition), sf::Vector3i(chunkPosition)).first->second;
+        chunk = &chunkMap.emplace(std::make_pair(sf::Vector3i(chunkPosition), Chunk(sf::Vector3i(chunkPosition), planeVbo))).first->second;
     }
     sf::Vector3<uint8_t> blockPositionChunkRel = Block::getPositionChunkRel(position);
     chunk->placeBlock(blockPositionChunkRel, std::move(block));

@@ -1,3 +1,4 @@
+#include <iostream>
 #include "Chunk.hpp"
 
 bool Chunk::isBlockInside(Vector3l blockPosition) const {
@@ -50,20 +51,28 @@ sf::Vector3i Chunk::getChunk(Chunk::Vector3l blockPosition) {
     if (blockPosition.z < 0 && blockPosition.z % 16 != 0) chunkPosition.z--;
     return chunkPosition;
 }
-Chunk::Chunk(sf::Vector3i chunkPosition) : chunkPosition(chunkPosition) {
+Chunk::Chunk(sf::Vector3i chunkPosition, uint32_t planeVbo) : chunkPosition(chunkPosition) {
     glGenVertexArrays(1, &vaoId);
-    glBindVertexArray(vaoId);
     glGenBuffers(1, &vboId);
-    glGenBuffers(1, &iboId);
-    glBindBuffer(GL_ARRAY_BUFFER, vboId);
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, iboId);
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*) nullptr);
-    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*) (3 * sizeof(float)));
-    glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*) (6 * sizeof(float)));
+    glBindVertexArray(vaoId);
     glEnableVertexAttribArray(0);
     glEnableVertexAttribArray(1);
     glEnableVertexAttribArray(2);
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+    glEnableVertexAttribArray(3);
+    glEnableVertexAttribArray(4);
+    glEnableVertexAttribArray(5);
+    glBindBuffer(GL_ARRAY_BUFFER, planeVbo);
+    glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 40, (void*) nullptr);
+    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 40, (void*) (2 * sizeof(float)));
+    glBindBuffer(GL_ARRAY_BUFFER, vboId);
+    glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, 40, (void*) (4 * sizeof(float)));
+    glVertexAttribPointer(3, 2, GL_FLOAT, GL_FALSE, 40, (void*) (7 * sizeof(float)));
+    glVertexAttribIPointer(4, 3, GL_BYTE,           40, (void*) (9 * sizeof(float)));
+    glVertexAttribIPointer(5, 1, GL_UNSIGNED_BYTE,  40, (void*) (9 * sizeof(float) + 3 * sizeof(int8_t)));
+    glVertexAttribDivisor(2, 1);
+    glVertexAttribDivisor(3, 1);
+    glVertexAttribDivisor(4, 1);
+    glVertexAttribDivisor(5, 1);
     glBindBuffer(GL_ARRAY_BUFFER, 0);
     glBindVertexArray(0);
 }
@@ -83,22 +92,16 @@ void Chunk::removeBlock(sf::Vector3<uint8_t> position) {
 }
 void Chunk::sendVertices() {
     glBindBuffer(GL_ARRAY_BUFFER, vboId);
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, iboId);
-    
-    glBufferData(GL_ARRAY_BUFFER, vertexData.size() * sizeof(float), vertexData.data(), GL_STATIC_DRAW);
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, indexData.size() * sizeof(uint32_t), indexData.data(), GL_STATIC_DRAW);
-    
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+    glBufferData(GL_ARRAY_BUFFER, planeData.size() * sizeof(RenderPlane), planeData.data(), GL_STATIC_DRAW);
     glBindBuffer(GL_ARRAY_BUFFER, 0);
-    triangles = indexData.size();
-    std::vector<float>().swap(vertexData);
-    std::vector<uint32_t>().swap(indexData);
-    
+    triangles = planeData.size();
+    std::vector<RenderPlane>().swap(planeData);
     send_require = false;
 }
 void Chunk::calculateVertices(const ChunkMap& chunkMap) {
-    std::vector<float>().swap(vertexData);
-    std::vector<uint32_t>().swap(indexData);
+    if (!planeData.empty()) {
+        std::vector<RenderPlane>().swap(planeData);
+    }
     for (auto& iter : blockMap) {
         using veci = sf::Vector3<int8_t>;
         using vecu = sf::Vector3<uint8_t>;
@@ -119,7 +122,7 @@ void Chunk::calculateVertices(const ChunkMap& chunkMap) {
                 }
             });
         });
-        block.genVertices(iter.first, adjoins, vertexData, indexData);
+        block.genVertices(iter.first, adjoins, planeData);
     }
     changed = false;
     send_require = true;
@@ -135,13 +138,11 @@ bool Chunk::empty() const {
 }
 void Chunk::draw(uint32_t blocksTexture, sf::Vector3<double> playerPosition, sf::Shader& chunkShader) const {
     glBindVertexArray(vaoId);
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, iboId);
     glBindTexture(GL_TEXTURE_2D, blocksTexture);
     sf::Vector3f offset =
             (sf::Vector3f) (sf::Vector3<double>((sf::Vector3<int64_t>) chunkPosition * 16ll) - playerPosition);
     chunkShader.setUniform("chunkPosition", offset);
-    glDrawElements(GL_TRIANGLES, triangles, GL_UNSIGNED_INT, nullptr);
+    glDrawArraysInstanced(GL_TRIANGLES, 0, 6, triangles);
     glBindTexture(GL_TEXTURE_2D, 0);
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
     glBindVertexArray(0);
 }

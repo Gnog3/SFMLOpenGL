@@ -36,7 +36,7 @@ add_executable(SFMLOpenGL
         source/Application/Timer/Timer.cpp
         source/Application/Timer/Timer.hpp
         source/Application/DestructionTimer.hpp
-        source/Application/NotConstructed.hpp source/Application/World/Crosshair/Crosshair.cpp source/Application/World/Crosshair/Crosshair.hpp)
+        source/Application/NotConstructed.hpp source/Application/World/Crosshair/Crosshair.cpp source/Application/World/Crosshair/Crosshair.hpp source/Application/World/RenderPlane.hpp)
 
 
 target_link_libraries(SFMLOpenGL

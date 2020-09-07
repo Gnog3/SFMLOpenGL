@@ -18,7 +18,7 @@ Client::Client() {
         std::exit(-1);
     }
     //window.setFramerateLimit(75);
-    glEnable(GL_CULL_FACE);
+    //glEnable(GL_CULL_FACE);
     
     window.setMouseCursorGrabbed(true);
     window.setMouseCursorVisible(false);
@@ -32,7 +32,7 @@ Client::Client() {
 //            }
 //        }
 //    }
-    world->placeBlock(std::make_unique<Block>(1), sf::Vector3<int64_t>(0,0,0));
+    world->placeBlock(std::make_unique<Block>(1), sf::Vector3<int64_t>(0, 0, 0));
     std::cout << "It took " << timer.getMilliseconds() << "ms" << std::endl;
     
     std::cout << "Calculating vertices... ";
@@ -50,7 +50,7 @@ Client::Client() {
         c.sendVertices();
     }
     std::cout << "It took " << timer.getMilliseconds() << "ms" << std::endl;
-    assert(Block::getPositionChunkRel(sf::Vector3<int64_t>(0,0,-17)) == sf::Vector3<uint8_t>(0,0,15));
+    assert(Block::getPositionChunkRel(sf::Vector3<int64_t>(0, 0, -17)) == sf::Vector3<uint8_t>(0, 0, 15));
 }
 
 Client::~Client() {
@@ -77,9 +77,16 @@ void Client::handleEvent(sf::Event& event) {
             window.setMouseCursorGrabbed(true);
             window.setMouseCursorVisible(false);
             player.setGrabbed(true);
+        } else if (event.key.code == sf::Keyboard::P) {
+            for (int x = 0; x < 100; x++) {
+                for (int y = 0; y < 100; y++) {
+                    for (int z = 0; z < 100; z++) {
+                        world->placeBlock(std::make_unique<Block>(1), sf::Vector3<int64_t>(x, y, z));
+                    }
+                }
+            }
         }
-    }
-    else if (event.type == sf::Event::MouseMoved && window.hasFocus())
+    } else if (event.type == sf::Event::MouseMoved && window.hasFocus())
         player.computeMatricesMouse(window);
     else if (event.type == sf::Event::MouseButtonPressed) {
         if (event.mouseButton.button == sf::Mouse::Left) {
@@ -100,9 +107,10 @@ void Client::update() {
     if (window.hasFocus())
         player.computePlayerPosKeyboard(window, deltaTime);
     rayCastResult = world->rayCast(player.getPlayerPos(), player.getDirection(), 100.0f);
-    if (rayCastResult.isFound) {
-        std::cout << "Looking at: X:" << rayCastResult.iend.x << " Y:" << rayCastResult.iend.y << "Z:" << rayCastResult.iend.z << std::endl;
-    }
+//    if (rayCastResult.isFound) {
+//        std::cout << "Looking at: X:" << rayCastResult.iend.x << " Y:" << rayCastResult.iend.y << "Z:"
+//                  << rayCastResult.iend.z << std::endl;
+//    }
 }
 
 void Client::draw() {

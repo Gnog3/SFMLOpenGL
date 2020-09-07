@@ -27,6 +27,7 @@ class World {
         std::unique_ptr<SkyBox> skyBox;
         NotConstructed<Crosshair, true> crosshair;
         uint32_t blockTexture = 0;
+        uint32_t planeVbo = 0;
         ChunkMap chunkMap;
     public:
         World();
