@@ -1,7 +1,7 @@
 #include "Crosshair.hpp"
 
 Crosshair::Crosshair() {
-    shader.loadFromFile("Shaders/line.vertex.glsl", "Shaders/line.fragment.glsl");
+    shader.loadFromFile("Data/Shaders/line.vertex.glsl", "Data/Shaders/line.fragment.glsl");
     glGenVertexArrays(1, &vaoId);
     glBindVertexArray(vaoId);
     glGenBuffers(1, &vboId);
