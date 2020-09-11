@@ -69,12 +69,10 @@ Chunk::Chunk(sf::Vector3i chunkPosition) : chunkPosition(chunkPosition) {
 }
 Block* Chunk::getBlock(sf::Vector3<uint8_t> blockPosition) {
     auto search = blockMap.find(blockPosition);
-    return search != blockMap.end() ? search->second.get() : nullptr;
+    return search != blockMap.end() ? &search->second : nullptr;
 }
-void Chunk::placeBlock(sf::Vector3<uint8_t> position, std::unique_ptr<Block> block) {
-    auto& node = blockMap[position];
-    node = nullptr;
-    node.swap(block);
+void Chunk::placeBlock(sf::Vector3<uint8_t> position, uint8_t id) {
+    blockMap.emplace(position, id);
     changed = true;
 }
 void Chunk::removeBlock(sf::Vector3<uint8_t> position) {
@@ -102,7 +100,7 @@ void Chunk::calculateVertices(const ChunkMap& chunkMap) {
     for (auto& iter : blockMap) {
         using veci = sf::Vector3<int8_t>;
         using vecu = sf::Vector3<uint8_t>;
-        auto block = *iter.second;
+        auto block = iter.second;
         auto pos = (sf::Vector3<int8_t>) iter.first;
         Adjoins adjoins;
         for_values<-1, 1>([&]<auto i>() {
@@ -112,9 +110,7 @@ void Chunk::calculateVertices(const ChunkMap& chunkMap) {
                 if (isBlockInside(combined)) {
                     auto iter = blockMap.find(static_cast<vecu>(combined));
                     if (iter != blockMap.end()) {
-                        if (iter->second->isBlock()) {
-                            (adjoins.*Chunk::getFunc(i, j))();
-                        }
+                        (adjoins.*Chunk::getFunc(i, j))();
                     }
                 }
             });

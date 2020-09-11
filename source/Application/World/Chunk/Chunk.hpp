@@ -14,7 +14,7 @@ class Chunk {
     private:
         using AdjoinsSetFunc = void (Adjoins::*)();
         using Vector3l = sf::Vector3<int64_t>;
-        std::map<sf::Vector3<uint8_t>, std::unique_ptr<Block>, Vector3LessThan<uint8_t>> blockMap;
+        std::map<sf::Vector3<uint8_t>, Block, Vector3LessThan<uint8_t>> blockMap;
         std::vector<float> vertexData;
         std::vector<uint32_t> indexData;
         sf::Vector3i chunkPosition;
@@ -33,7 +33,7 @@ class Chunk {
         Chunk() = default;
         explicit Chunk(sf::Vector3i chunkPosition);
         Block* getBlock(sf::Vector3<uint8_t> blockPosition);
-        void placeBlock(sf::Vector3<uint8_t> position, std::unique_ptr<Block> block);
+        void placeBlock(sf::Vector3<uint8_t> position, uint8_t id);
         void removeBlock(sf::Vector3<uint8_t> position);
         void calculateVertices(const ChunkMap& chunkMap);
         void sendVertices();

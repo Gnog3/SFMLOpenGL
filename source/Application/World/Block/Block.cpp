@@ -65,10 +65,6 @@ Block::Block(uint8_t id) : id(id) {}
 uint8_t Block::getId() const {
     return id;
 }
-
-bool Block::isBlock() {
-    return true;
-}
 void Block::genVertices(sf::Vector3<uint8_t> blockPosition, Adjoins adjoins, std::vector<float>& vertices,
                         std::vector<uint32_t>& indices) {
     uint32_t adjoinsAmount = adjoins.amount();

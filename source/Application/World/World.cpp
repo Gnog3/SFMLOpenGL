@@ -133,7 +133,7 @@ void World::draw(Player& player) {
 //    timer.printMicroseconds();
 //    sf::Shader::bind(nullptr);
 }
-void World::placeBlock(std::unique_ptr<Block> block, sf::Vector3<int64_t> position) {
+void World::placeBlock(uint8_t id, sf::Vector3<int64_t> position) {
     sf::Vector3i chunkPosition = Chunk::getChunk(position);
     Chunk* chunk;
     try {
@@ -142,7 +142,7 @@ void World::placeBlock(std::unique_ptr<Block> block, sf::Vector3<int64_t> positi
         chunk = &chunkMap.emplace(sf::Vector3i(chunkPosition), sf::Vector3i(chunkPosition)).first->second;
     }
     sf::Vector3<uint8_t> blockPositionChunkRel = Block::getPositionChunkRel(position);
-    chunk->placeBlock(blockPositionChunkRel, std::move(block));
+    chunk->placeBlock(blockPositionChunkRel, id);
 }
 void World::removeBlock(sf::Vector3<int64_t> position) {
     sf::Vector3i chunkPosition = Chunk::getChunk(position);

@@ -34,7 +34,7 @@ class World {
         Block* getBlock(sf::Vector3<int64_t> position);
         RayCastResult rayCast(sf::Vector3<double> position, sf::Vector3f direction, float maxDist);
         void draw(Player& player);
-        void placeBlock(std::unique_ptr<Block> block, sf::Vector3<int64_t> position);
+        void placeBlock(uint8_t id, sf::Vector3<int64_t> position);
         void removeBlock(sf::Vector3<int64_t> position);
         
         friend Client;

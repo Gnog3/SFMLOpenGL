@@ -25,14 +25,14 @@ Client::Client() {
     world.construct();
     std::cout << "Creating world... ";
     Timer timer;
-//    for (int x = 0; x < 100; x++) {
-//        for (int y = 0; y < 100; y++) {
-//            for (int z = 0; z < 100; z++) {
-//                world->placeBlock(std::make_unique<Block>(1), sf::Vector3<int64_t>(x,y,z));
-//            }
-//        }
-//    }
-    world->placeBlock(std::make_unique<Block>(1), sf::Vector3<int64_t>(0,0,0));
+    for (int x = 0; x < 100; x++) {
+        for (int y = 0; y < 100; y++) {
+            for (int z = 0; z < 100; z++) {
+                world->placeBlock(1, sf::Vector3<int64_t>(x,y,z));
+            }
+        }
+    }
+    world->placeBlock(1, sf::Vector3<int64_t>(0,0,0));
     std::cout << "It took " << timer.getMilliseconds() << "ms" << std::endl;
     
     std::cout << "Calculating vertices... ";
@@ -89,7 +89,7 @@ void Client::handleEvent(sf::Event& event) {
         } else if (event.mouseButton.button == sf::Mouse::Right) {
             if (rayCastResult.isFound) {
                 sf::Vector3<int64_t> position = rayCastResult.iend + (sf::Vector3<int64_t>) rayCastResult.norm;
-                world->placeBlock(std::make_unique<Block>(3), position);
+                world->placeBlock(3, position);
             }
         }
     }
