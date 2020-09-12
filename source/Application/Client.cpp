@@ -22,7 +22,7 @@ Client::Client() {
     
     window.setMouseCursorGrabbed(true);
     window.setMouseCursorVisible(false);
-    world.construct();
+    world = std::make_unique<World>();
     std::cout << "Creating world... ";
     Timer timer;
     for (int x = 0; x < 100; x++) {

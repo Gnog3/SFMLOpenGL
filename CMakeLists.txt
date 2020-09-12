@@ -10,7 +10,6 @@ add_executable(SFMLOpenGL
         source/main.cpp
         source/Application/Client.cpp
         source/Application/Client.hpp
-        source/Application/ogl.hpp
         source/Application/Player/Player.cpp
         source/Application/Player/Player.hpp
         source/Application/World/SkyBox/SkyBox.cpp
@@ -36,7 +35,9 @@ add_executable(SFMLOpenGL
         source/Application/Timer/Timer.cpp
         source/Application/Timer/Timer.hpp
         source/Application/DestructionTimer.hpp
-        source/Application/NotConstructed.hpp source/Application/World/Crosshair/Crosshair.cpp source/Application/World/Crosshair/Crosshair.hpp)
+        source/Application/NotConstructed.hpp
+        source/Application/World/Crosshair/Crosshair.cpp
+        source/Application/World/Crosshair/Crosshair.hpp)
 
 
 target_link_libraries(SFMLOpenGL

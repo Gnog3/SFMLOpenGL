@@ -5,7 +5,7 @@
 #include <SFML/Graphics.hpp>
 #include "Player/Player.hpp"
 #include "World/World.hpp"
-#include "ogl.hpp"
+#include <GL/glew.h>
 #include "World/Block/Block.hpp"
 #include "Timer/Timer.hpp"
 #include "NotConstructed.hpp"
@@ -14,7 +14,7 @@ class Client {
         sf::RenderWindow window;
         Player player;
         sf::Clock deltaTimeClock;
-        NotConstructed<World, true> world;
+        std::unique_ptr<World> world;
         RayCastResult rayCastResult;
         float deltaTime = 0;
     public:

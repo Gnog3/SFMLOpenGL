@@ -4,7 +4,7 @@
 #include <SFML/Graphics.hpp>
 #include <glm.hpp>
 #include <tuple>
-#include "../ogl.hpp"
+#include <GL/glew.h>
 #include "../Player/Player.hpp"
 #include "../Vector3LessThan/Vector3LessThan.hpp"
 #include "SkyBox/SkyBox.hpp"

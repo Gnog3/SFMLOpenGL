@@ -1,7 +1,7 @@
 #pragma once
 
 #include <SFML/Graphics.hpp>
-#include "../../ogl.hpp"
+#include <GL/glew.h>
 
 class Crosshair {
     private:

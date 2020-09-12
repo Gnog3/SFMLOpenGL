@@ -3,7 +3,7 @@
 #include <iostream>
 #include <SFML/Graphics.hpp>
 #include <glm.hpp>
-#include "../../ogl.hpp"
+#include <GL/glew.h>
 class SkyBox {
     private:
         sf::Shader* shader;

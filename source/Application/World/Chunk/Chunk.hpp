@@ -5,8 +5,8 @@
 #include <vector>
 #include <SFML/Graphics.hpp>
 #include <functional>
+#include <GL/glew.h>
 #include "../../Vector3LessThan/Vector3LessThan.hpp"
-#include "../../ogl.hpp"
 #include "../Block/Block.hpp"
 #include "../ChunkMap.hpp"
 
