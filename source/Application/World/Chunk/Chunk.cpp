@@ -72,7 +72,7 @@ Block* Chunk::getBlock(sf::Vector3<uint8_t> blockPosition) {
     return search != blockMap.end() ? &search->second : nullptr;
 }
 void Chunk::placeBlock(sf::Vector3<uint8_t> position, uint8_t id) {
-    blockMap[position] = id;
+    blockMap[position] = Block(id);
     changed = true;
 }
 void Chunk::removeBlock(sf::Vector3<uint8_t> position) {
