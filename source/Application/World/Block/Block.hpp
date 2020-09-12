@@ -32,7 +32,8 @@ class Block {
         uint8_t id;
     public:
         static sf::Vector3<uint8_t> getPositionChunkRel(sf::Vector3<int64_t> blockPosition);
-        explicit Block(uint8_t id);
+        Block() = default;
+        Block(uint8_t id);
         [[nodiscard]] uint8_t getId() const;
         virtual void genVertices(sf::Vector3<uint8_t> blockPosition,
                                  Adjoins adjoins,
