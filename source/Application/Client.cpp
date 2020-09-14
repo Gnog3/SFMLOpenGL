@@ -19,6 +19,7 @@ Client::Client() {
     }
     //window.setFramerateLimit(75);
     glEnable(GL_CULL_FACE);
+    glEnable(GL_DEPTH_TEST);
     
     window.setMouseCursorGrabbed(true);
     window.setMouseCursorVisible(false);

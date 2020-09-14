@@ -7,26 +7,24 @@
 #include <GL/glew.h>
 #include "../Player/Player.hpp"
 #include "../Vector3LessThan/Vector3LessThan.hpp"
-#include "SkyBox/SkyBox.hpp"
 #include "OpenGLModel/OpenGLModel.hpp"
 #include "Chunk/Chunk.hpp"
 #include "ChunkMap.hpp"
 #include "../Timer/Timer.hpp"
 #include "../NotConstructed.hpp"
 #include "Crosshair/Crosshair.hpp"
+
 struct RayCastResult {
     sf::Vector3<double> end;
     sf::Vector3<int64_t> iend;
     sf::Vector3f norm;
-    bool isFound;
+    bool isFound = false;
 };
+
 class Client;
+
 class World {
     private:
-        sf::Shader chunkShader;
-        std::unique_ptr<SkyBox> skyBox;
-        NotConstructed<Crosshair, true> crosshair;
-        uint32_t blockTexture = 0;
         ChunkMap chunkMap;
     public:
         World();
