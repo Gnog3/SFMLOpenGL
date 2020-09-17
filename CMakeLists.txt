@@ -2,10 +2,11 @@ cmake_minimum_required(VERSION 3.16)
 project(SFMLOpenGL)
 
 set(CMAKE_CXX_STANDARD 20)
-include_directories(SFML/include glew/include glm/glm)
+include_directories(SFML/include glew/include glm/glm ConcurrentQueue ReaderWriterQueue)
 link_directories(SFML/lib glew/lib/Release/x64)
 add_definitions(-DDEBUG)
 set(CMAKE_EXE_LINKER_FLAGS "-static-libgcc -static-libstdc++ -static")
+set(CMAKE_CXX_FLAGS "-march=native")
 add_executable(SFMLOpenGL
         source/main.cpp
         source/Application/Client.cpp
@@ -14,12 +15,8 @@ add_executable(SFMLOpenGL
         source/Application/Player/Player.hpp
         source/Application/World/SkyBox/SkyBox.cpp
         source/Application/World/SkyBox/SkyBox.hpp
-        source/Application/World/OpenGLModel/OpenGLModel.cpp
-        source/Application/World/OpenGLModel/OpenGLModel.hpp
         source/Application/World/World.cpp
         source/Application/World/World.hpp
-        source/Application/World/Texture/Texture.cpp
-        source/Application/World/Texture/Texture.hpp
         source/Application/Vector3LessThan/Vector3LessThan.hpp
         source/Application/World/VertexOperations/VertexOperations.cpp
         source/Application/World/VertexOperations/VertexOperations.hpp
@@ -37,7 +34,13 @@ add_executable(SFMLOpenGL
         source/Application/DestructionTimer.hpp
         source/Application/NotConstructed.hpp
         source/Application/World/Crosshair/Crosshair.cpp
-        source/Application/World/Crosshair/Crosshair.hpp source/Application/World/Engine/Engine.cpp source/Application/World/Engine/Engine.hpp)
+        source/Application/World/Crosshair/Crosshair.hpp
+        source/Application/Engine/Engine.cpp
+        source/Application/Engine/Engine.hpp
+        source/Application/Engine/RenderChunkMap.hpp
+        source/Application/Engine/RenderChunk/RenderChunk.cpp
+        source/Application/Engine/RenderChunk/RenderChunk.hpp
+        source/Application/Engine/PlaneVertex.hpp source/Application/World/ChunkVertexData.hpp)
 
 
 target_link_libraries(SFMLOpenGL
@@ -47,4 +50,5 @@ target_link_libraries(SFMLOpenGL
         sfml-system
         glew32
         opengl32
-        winmm)
+        winmm
+        atomic)

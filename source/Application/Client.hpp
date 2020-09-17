@@ -1,30 +1,37 @@
 #ifndef SFMLOPENGL_CLIENT_HPP
+
 #define SFMLOPENGL_CLIENT_HPP
+
 #include <iostream>
 #include <optional>
 #include <SFML/Graphics.hpp>
+#include <GL/glew.h>
 #include "Player/Player.hpp"
 #include "World/World.hpp"
-#include <GL/glew.h>
+#include "Engine/Engine.hpp"
 #include "World/Block/Block.hpp"
 #include "Timer/Timer.hpp"
-#include "NotConstructed.hpp"
+
 class Client {
     private:
-        sf::RenderWindow window;
         Player player;
         sf::Clock deltaTimeClock;
-        std::unique_ptr<World> world;
+        sf::RenderWindow window;
+        std::optional<Engine> engine;
+        std::optional<World> world;
         RayCastResult rayCastResult;
+        bool requireClose = false;
         float deltaTime = 0;
+        
     public:
         Client();
         ~Client();
         bool isOpen();
+        void wait_for_engine();
         bool pollEvent(sf::Event& event);
         void handleEvent(sf::Event& event);
         void update();
-        void draw();
+        void after_init();
 };
 
 
