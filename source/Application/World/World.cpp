@@ -1,38 +1,62 @@
 #include "World.hpp"
 
-World::World() {
-    glEnable(GL_DEPTH_TEST);
-    
-    chunkShader.loadFromFile("Data/Shaders/chunk.vertex.glsl", "Data/Shaders/chunk.fragment.glsl");
-    skyBox = std::make_unique<SkyBox>("Data/Shaders/skybox.vertex.glsl", "Data/Shaders/skybox.fragment.glsl",
-                                      std::vector<std::string>{
-                                              "Data/SkyBoxTextures/right.bmp",
-                                              "Data/SkyBoxTextures/left.bmp",
-                                              "Data/SkyBoxTextures/top.bmp",
-                                              "Data/SkyBoxTextures/bottom.bmp",
-                                              "Data/SkyBoxTextures/front.bmp",
-                                              "Data/SkyBoxTextures/back.bmp"
-                                      });
-    crosshair.construct();
-    sf::Image image;
-    image.loadFromFile("Data/texture.png");
-    sf::Vector2u size = image.getSize();
-    glGenTextures(1, &blockTexture);
-    glBindTexture(GL_TEXTURE_2D, blockTexture);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, size.x, size.y, 0, GL_RGBA, GL_UNSIGNED_BYTE, image.getPixelsPtr());
-    glGenerateMipmap(GL_TEXTURE_2D);
-    glBindTexture(GL_TEXTURE_2D, 0);
-}
-World::~World() = default;
 Block* World::getBlock(sf::Vector3<int64_t> position) {
-    sf::Vector3i chunk = Chunk::getChunk(position);
-    auto chunkSearch = chunkMap.find(chunk);
+    sf::Vector3i chunk = Chunk::getChunk(position) * 16;
+    auto chunkSearch = chunkMap.find(sf::Vector3<int64_t>(chunk));
     if (chunkSearch != chunkMap.end()) {
         Chunk& chunkRef = chunkSearch->second;
         return chunkRef.getBlock(Block::getPositionChunkRel(position));
     }
     return nullptr;
+}
+void World::placeBlockSendData(uint8_t id, sf::Vector3<int64_t> position) {
+    //sf::Vector3i chunkPosition = Chunk::getChunk(position);
+    Chunk* chunk;
+    sf::Vector3<int64_t> offsetPosition = (sf::Vector3<int64_t>) Chunk::getChunk(position) * 16ll;
+    try {
+        chunk = &chunkMap.at(offsetPosition);
+    } catch (std::out_of_range&) {
+        chunk = &chunkMap.emplace(sf::Vector3i(offsetPosition), sf::Vector3i(offsetPosition)).first->second;
+    }
+    sf::Vector3<uint8_t> blockPositionChunkRel = Block::getPositionChunkRel(position);
+    chunk->placeBlock(blockPositionChunkRel, id);
+    ChunkVertexData chunkVertexData = chunk->calculateVertices(chunkMap);
+    EngineTask engineTask;
+    engineTask.chunkPosition = offsetPosition;
+    engineTask.vertexData = std::move(chunkVertexData.vertexData);
+    engineTask.indexData = std::move(chunkVertexData.indexData);
+    engine.newTask(std::move(engineTask));
+}
+void World::removeBlockSendData(sf::Vector3<int64_t> position) {
+    Chunk* chunk;
+    sf::Vector3<int64_t> offsetPosition = (sf::Vector3<int64_t>) Chunk::getChunk(position) * 16ll;
+    try {
+        chunk = &chunkMap.at(offsetPosition);
+    } catch (std::out_of_range&) {
+        chunk = &chunkMap.emplace(sf::Vector3i(offsetPosition), sf::Vector3i(offsetPosition)).first->second;
+    }
+    sf::Vector3<uint8_t> blockPositionChunkRel = Block::getPositionChunkRel(position);
+    chunk->removeBlock(blockPositionChunkRel);
+    ChunkVertexData chunkVertexData = chunk->calculateVertices(chunkMap);
+    EngineTask engineTask;
+    engineTask.chunkPosition = offsetPosition;
+    engineTask.vertexData = std::move(chunkVertexData.vertexData);
+    engineTask.indexData = std::move(chunkVertexData.indexData);
+    engine.newTask(std::move(engineTask));
+}
+void World::thread_main() {
+    std::cout << "World thread started." << std::endl;
+    while (!stopRequire) {
+        WorldTask worldTask;
+        externalQueue.wait_dequeue(worldTask);
+        if (stopRequire) break;
+        if (worldTask.type == WorldTaskType::SingleBlockPlace) {
+            placeBlockSendData(1, worldTask.position);
+        } else if (worldTask.type == WorldTaskType::SingleBlockRemove) {
+            removeBlockSendData(worldTask.position);
+        }
+    }
+    std::cout << "World thread stopped." << std::endl;
 }
 RayCastResult World::rayCast(sf::Vector3<double> position, sf::Vector3f direction, float maxDist) {
     RayCastResult ret{};
@@ -112,46 +136,31 @@ RayCastResult World::rayCast(sf::Vector3<double> position, sf::Vector3f directio
     ret.isFound = false;
     return ret;
 }
-void World::draw(Player& player) {
-    glm::mat4 view = player.getViewMatrix();
-    glm::mat4 projection = player.getProjectionMatrix();
-    glm::mat4 vp = player.getVpMatrix();
-    skyBox->draw(projection * glm::mat4(glm::mat3(view))); // TODO: need to be optimized()()
-    sf::Shader::bind(&chunkShader);
-    chunkShader.setUniform("VP", sf::Glsl::Mat4(&vp[0][0]));
-//    Timer timer;
-    for (auto& chunk : chunkMap) {
-        
-        Chunk& c = chunk.second;
-        if (c.getChanged()) {
-            c.calculateVertices(chunkMap);
-            c.sendVertices();
-        }
-        c.draw(blockTexture, player.getPlayerPos(), chunkShader);
-    }
-    crosshair->draw();
-//    timer.printMicroseconds();
-//    sf::Shader::bind(nullptr);
+World::World(Engine& engine) : engine(engine) {
+
 }
-void World::placeBlock(uint8_t id, sf::Vector3<int64_t> position) {
-    sf::Vector3i chunkPosition = Chunk::getChunk(position);
-    Chunk* chunk;
-    try {
-        chunk = &chunkMap.at(chunkPosition);
-    } catch (std::out_of_range&) {
-        chunk = &chunkMap.emplace(sf::Vector3i(chunkPosition), sf::Vector3i(chunkPosition)).first->second;
-    }
-    sf::Vector3<uint8_t> blockPositionChunkRel = Block::getPositionChunkRel(position);
-    chunk->placeBlock(blockPositionChunkRel, id);
+World::~World() = default;
+void World::start_thread() {
+    thread.emplace(&World::thread_main, this);
 }
-void World::removeBlock(sf::Vector3<int64_t> position) {
-    sf::Vector3i chunkPosition = Chunk::getChunk(position);
-    Chunk* chunk;
-    try {
-        chunk = &chunkMap.at(chunkPosition);
-    } catch (std::out_of_range&) {
-        return;
+void World::requireStop() {
+    stopRequire = true;
+    WorldTask worldTask;
+    worldTask.type = WorldTaskType::WorldThreadStop;
+    externalQueue.enqueue(std::move(worldTask));
+}
+void World::waitStop() {
+    requireStop();
+    if (thread) {
+        thread->join();
     }
-    sf::Vector3<uint8_t> blockPositionChunkRel = Block::getPositionChunkRel(position);
-    chunk->removeBlock(blockPositionChunkRel);
+}
+void World::newTask(WorldTask&& worldTask) {
+    externalQueue.enqueue(std::move(worldTask));
+}
+void World::oneBlock(WorldTaskType worldTaskType, sf::Vector3<int64_t> position) {
+    WorldTask worldTask;
+    worldTask.position = position;
+    worldTask.type = worldTaskType;
+    newTask(std::move(worldTask));
 }

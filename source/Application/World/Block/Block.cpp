@@ -65,12 +65,11 @@ Block::Block(uint8_t id) : id(id) {}
 uint8_t Block::getId() const {
     return id;
 }
-void Block::genVertices(sf::Vector3<uint8_t> blockPosition, Adjoins adjoins, std::vector<float>& vertices,
-                        std::vector<uint32_t>& indices) {
+void Block::genVertices(sf::Vector3<uint8_t> blockPosition, Adjoins adjoins, ChunkVertexData& data) {
     uint32_t adjoinsAmount = adjoins.amount();
     if (adjoinsAmount == 6)
         return;
-    uint32_t indexBase = vertices.size() / 8;
+    uint32_t indexBase = data.vertexData.size();
     Adjoins sides = ~adjoins;
     constexpr bool (Adjoins::* funcs[])() const {
             &Adjoins::isUp,
@@ -87,16 +86,16 @@ void Block::genVertices(sf::Vector3<uint8_t> blockPosition, Adjoins adjoins, std
         if ((sides.*funcs[i])()) {
             for_range<0, 4>([&]<auto j>() {
                 constexpr vector3f offset = getOffset(static_cast<Direction>(i), j);
-                std::array<float, 8> arr{};
-                arr[0] = (float) blockPosition.x + offset[0];
-                arr[1] = (float) blockPosition.y + offset[1];
-                arr[2] = (float) blockPosition.z + offset[2];
-                arr[3] = normals[i][0];
-                arr[4] = normals[i][1];
-                arr[5] = normals[i][2];
-                arr[6] = texCoords.x + texCoordsOffset[j][0];
-                arr[7] = texCoords.y + texCoordsOffset[j][1];
-                vertices.insert(vertices.end(), arr.begin(), arr.end());
+                PlaneVertex planeVertex;
+                planeVertex.position.x = (float) blockPosition.x + offset[0];
+                planeVertex.position.y = (float) blockPosition.y + offset[1];
+                planeVertex.position.z = (float) blockPosition.z + offset[2];
+                planeVertex.normal.x = normals[i][0];
+                planeVertex.normal.y = normals[i][1];
+                planeVertex.normal.z = normals[i][2];
+                planeVertex.texCoord.x = texCoords.x + texCoordsOffset[j][0];
+                planeVertex.texCoord.y = texCoords.y + texCoordsOffset[j][1];
+                data.vertexData.push_back(planeVertex);
             });
             if constexpr (Down == static_cast<Direction>(i)) {
                 std::array<uint32_t, 6> arr{};
@@ -106,7 +105,7 @@ void Block::genVertices(sf::Vector3<uint8_t> blockPosition, Adjoins adjoins, std
                 arr[3] = indexBase + 3;
                 arr[4] = indexBase + 2;
                 arr[5] = indexBase + 1;
-                indices.insert(indices.end(), arr.begin(), arr.end());
+                data.indexData.insert(data.indexData.end(), arr.begin(), arr.end());
                 indexBase += 4;
             } else {
                 std::array<uint32_t, 6> arr{};
@@ -116,7 +115,7 @@ void Block::genVertices(sf::Vector3<uint8_t> blockPosition, Adjoins adjoins, std
                 arr[3] = indexBase + 1;
                 arr[4] = indexBase + 2;
                 arr[5] = indexBase + 3;
-                indices.insert(indices.end(), arr.begin(), arr.end());
+                data.indexData.insert(data.indexData.end(), arr.begin(), arr.end());
                 indexBase += 4;
             }
         }
