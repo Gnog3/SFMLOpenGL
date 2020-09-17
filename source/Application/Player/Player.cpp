@@ -18,8 +18,8 @@ void Player::computeMatricesMouse(sf::Window& window) {
                 std::cos(verticalAngle) * std::cos(horizontalAngle)
         );
         glm::vec3 playerPosition_glm(playerPos.x, playerPos.y, playerPos.z);
-        glm::mat4 view = glm::lookAt(glm::vec3(), direction, glm::vec3(0, 1, 0));
-        glm::mat4 projection = glm::perspective(glm::radians(90.0f), 16.0f / 9.0f, 0.1f, 1000.0f);
+        glm::mat4 view = glm::lookAt(glm::vec3(), direction.load(), glm::vec3(0, 1, 0));
+        glm::mat4 projection = glm::perspective(glm::radians(90.0f), 16.0f / 9.0f, 0.1f, 10000.0f);
         this->view = view;
         this->projection = projection;
         matrix = projection * view;
@@ -28,21 +28,21 @@ void Player::computeMatricesMouse(sf::Window& window) {
 
 void Player::computePlayerPosKeyboard(sf::Window& window, float deltaTime) {
     //direction.y = 0;
-    direction = glm::normalize(direction);
+    glm::vec3 current_direction = glm::normalize(direction.load());
     if (sf::Keyboard::isKeyPressed(forward)) {
-        glm::vec3 poffset(direction * cameraSpeed * deltaTime);
+        glm::vec3 poffset(current_direction * cameraSpeed * deltaTime);
         playerPos += sf::Vector3<double>(poffset.x, 0, poffset.z);
     }
     if (sf::Keyboard::isKeyPressed(backward)) {
-        glm::vec3 poffset(direction * cameraSpeed * deltaTime);
+        glm::vec3 poffset(current_direction * cameraSpeed * deltaTime);
         playerPos -= sf::Vector3<double>(poffset.x, 0, poffset.z);
     }
     if (sf::Keyboard::isKeyPressed(left)) {
-        glm::vec3 poffset(glm::normalize(glm::cross(direction, glm::vec3(0, 1, 0))) * cameraSpeed * deltaTime);
+        glm::vec3 poffset(glm::normalize(glm::cross(current_direction, glm::vec3(0, 1, 0))) * cameraSpeed * deltaTime);
         playerPos -= sf::Vector3<double>(poffset.x, 0, poffset.z);
     }
     if (sf::Keyboard::isKeyPressed(right)) {
-        glm::vec3 poffset(glm::normalize(glm::cross(direction, glm::vec3(0, 1, 0))) * cameraSpeed * deltaTime);
+        glm::vec3 poffset(glm::normalize(glm::cross(current_direction, glm::vec3(0, 1, 0))) * cameraSpeed * deltaTime);
         playerPos += sf::Vector3<double>(poffset.x, 0, poffset.z);
     }
     if (sf::Keyboard::isKeyPressed(up)) {
@@ -51,6 +51,7 @@ void Player::computePlayerPosKeyboard(sf::Window& window, float deltaTime) {
     if (sf::Keyboard::isKeyPressed(down)) {
         playerPos -= sf::Vector3<double>(0, 1, 0) * (double) (deltaTime * cameraSpeed);
     }
+    direction.store(current_direction);
 }
 
 void Player::setGrabbed(bool grabbed_) {
@@ -72,5 +73,6 @@ sf::Vector3<double> Player::getPlayerPos() {
     return playerPos;
 }
 sf::Vector3f Player::getDirection() const {
-    return sf::Vector3f(direction.x, direction.y, direction.z);
+    glm::vec3 current_direction = direction.load();
+    return sf::Vector3f(current_direction.x, current_direction.y, current_direction.z);
 }

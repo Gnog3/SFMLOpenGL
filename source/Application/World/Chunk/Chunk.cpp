@@ -1,5 +1,5 @@
+#include <iostream>
 #include "Chunk.hpp"
-
 bool Chunk::isBlockInside(Vector3l blockPosition) const {
     return getChunk(blockPosition) == chunkPosition;
 }
@@ -51,52 +51,27 @@ sf::Vector3i Chunk::getChunk(Chunk::Vector3l blockPosition) {
     return chunkPosition;
 }
 Chunk::Chunk(sf::Vector3i chunkPosition) : chunkPosition(chunkPosition) {
-    glGenVertexArrays(1, &vaoId);
-    glBindVertexArray(vaoId);
-    glGenBuffers(1, &vboId);
-    glGenBuffers(1, &iboId);
-    glBindBuffer(GL_ARRAY_BUFFER, vboId);
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, iboId);
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*) nullptr);
-    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*) (3 * sizeof(float)));
-    glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*) (6 * sizeof(float)));
-    glEnableVertexAttribArray(0);
-    glEnableVertexAttribArray(1);
-    glEnableVertexAttribArray(2);
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
-    glBindBuffer(GL_ARRAY_BUFFER, 0);
-    glBindVertexArray(0);
+
 }
 Block* Chunk::getBlock(sf::Vector3<uint8_t> blockPosition) {
     auto search = blockMap.find(blockPosition);
     return search != blockMap.end() ? &search->second : nullptr;
 }
 void Chunk::placeBlock(sf::Vector3<uint8_t> position, uint8_t id) {
+    try {
+        blockMap.at(position);
+    } catch (std::out_of_range&) {
+        blockMap[position] = Block(id);
+        return;
+    }
     blockMap[position] = Block(id);
-    changed = true;
+//    std::cout << "Block already exists" << std::endl;
 }
 void Chunk::removeBlock(sf::Vector3<uint8_t> position) {
     blockMap.erase(position);
-    changed = true;
 }
-void Chunk::sendVertices() {
-    glBindBuffer(GL_ARRAY_BUFFER, vboId);
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, iboId);
-    
-    glBufferData(GL_ARRAY_BUFFER, vertexData.size() * sizeof(float), vertexData.data(), GL_STATIC_DRAW);
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, indexData.size() * sizeof(uint32_t), indexData.data(), GL_STATIC_DRAW);
-    
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
-    glBindBuffer(GL_ARRAY_BUFFER, 0);
-    triangles = indexData.size();
-    std::vector<float>().swap(vertexData);
-    std::vector<uint32_t>().swap(indexData);
-    
-    send_require = false;
-}
-void Chunk::calculateVertices(const ChunkMap& chunkMap) {
-    std::vector<float>().swap(vertexData);
-    std::vector<uint32_t>().swap(indexData);
+ChunkVertexData Chunk::calculateVertices(const ChunkMap& chunkMap) {
+    ChunkVertexData chunkVertexData;
     for (auto& iter : blockMap) {
         using veci = sf::Vector3<int8_t>;
         using vecu = sf::Vector3<uint8_t>;
@@ -115,29 +90,11 @@ void Chunk::calculateVertices(const ChunkMap& chunkMap) {
                 }
             });
         });
-        block.genVertices(iter.first, adjoins, vertexData, indexData);
+        block.genVertices(iter.first, adjoins, chunkVertexData);
     }
-    changed = false;
-    send_require = true;
-}
-bool Chunk::getChanged() const {
-    return changed;
-}
-bool Chunk::getSendRequire() const {
-    return send_require;
+
+    return chunkVertexData;
 }
 bool Chunk::empty() const {
     return blockMap.empty();
-}
-void Chunk::draw(uint32_t blocksTexture, sf::Vector3<double> playerPosition, sf::Shader& chunkShader) const {
-    glBindVertexArray(vaoId);
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, iboId);
-    glBindTexture(GL_TEXTURE_2D, blocksTexture);
-    sf::Vector3f offset =
-            (sf::Vector3f) (sf::Vector3<double>((sf::Vector3<int64_t>) chunkPosition * 16ll) - playerPosition);
-    chunkShader.setUniform("chunkPosition", offset);
-    glDrawElements(GL_TRIANGLES, triangles, GL_UNSIGNED_INT, nullptr);
-    glBindTexture(GL_TEXTURE_2D, 0);
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
-    glBindVertexArray(0);
 }

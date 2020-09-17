@@ -8,7 +8,8 @@
 #include "../../static_for/static_for.hpp"
 #include "../../Direction.hpp"
 #include "../Adjoins/Adjoins.hpp"
-
+#include "../../Engine/PlaneVertex.hpp"
+#include "../ChunkVertexData.hpp"
 class Block {
     private:
         using vector3f = std::array<float, 3>;
@@ -32,11 +33,10 @@ class Block {
         uint8_t id;
     public:
         static sf::Vector3<uint8_t> getPositionChunkRel(sf::Vector3<int64_t> blockPosition);
-        Block() = default;
+        Block() : id(0){};
         explicit Block(uint8_t id);
         [[nodiscard]] uint8_t getId() const;
         virtual void genVertices(sf::Vector3<uint8_t> blockPosition,
                                  Adjoins adjoins,
-                                 std::vector<float>& vertices,
-                                 std::vector<uint32_t>& indices);
+                                 ChunkVertexData& data);
 };
