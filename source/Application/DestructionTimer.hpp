@@ -25,4 +25,7 @@ class DestructionTimer {
         T* operator->() {
             return object.operator->();
         }
+        T& value() {
+            return *object.operator->();
+        }
 };

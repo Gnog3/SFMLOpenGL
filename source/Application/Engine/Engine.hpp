@@ -11,7 +11,8 @@
 #include "RenderChunkMap.hpp"
 #include "readerwriterqueue.h"
 #include "../World/Chunk/Chunk.hpp"
-
+#include "../GlobalRef.hpp"
+#include "../Thready.hpp"
 using namespace moodycamel;
 
 struct EngineTask {
@@ -26,30 +27,20 @@ struct EngineTask {
     }
     EngineTask& operator=(const EngineTask& other) = default;
 };
-
-class Engine {
+// Requires nothing for construction
+// Requires window and player for thread
+class Engine : public Thready {
     private:
-        sf::RenderWindow& window;
-        Player& player;
         sf::Shader chunkShader;
         std::optional<SkyBox> skyBox;
-        std::optional<std::thread> thread;
         std::optional<Crosshair> crosshair;
-        std::mutex inited_mutex;
-        std::condition_variable inited_cond;
         ReaderWriterQueue<EngineTask> updateQueue;
         RenderChunkMap renderChunkMap;
         uint32_t blockTexture = 0;
-        volatile bool stopRequire = false;
-        volatile bool inited = false;
         void thread_main();
         void draw();
         void sendMeshes();
     public:
-        Engine(sf::RenderWindow& window, Player& player);
         void start_thread();
-        void requireStop();
-        void waitStop();
-        void waitInit();
         void newTask(EngineTask&& engineTask);
 };

@@ -7,7 +7,7 @@ class NotConstructed {
             T member;
         };
     public:
-        NotConstructed() {}
+        NotConstructed() noexcept {};
         template<class... Args>
         void construct(Args&& ... args) {
             new(&this->member) T(args...);

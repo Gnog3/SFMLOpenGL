@@ -5,7 +5,7 @@
 #include <SFML/Graphics.hpp>
 #include <glm.hpp>
 #include <gtx/transform.hpp>
-
+// Requires nothing
 class Player {
     private:
         float horizontalAngle = 3.14f;

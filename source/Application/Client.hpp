@@ -11,28 +11,19 @@
 #include "Engine/Engine.hpp"
 #include "World/Block/Block.hpp"
 #include "Timer/Timer.hpp"
-
+#include "Thready.hpp"
+// Requires nothing for construction
+// Requires window, world, player for thread
 class Client {
     private:
-        Player player;
         sf::Clock deltaTimeClock;
-        sf::RenderWindow window;
-        std::optional<Engine> engine;
-        std::optional<World> world;
         RayCastResult rayCastResult;
-        bool requireClose = false;
-        float deltaTime = 0;
         
-    public:
-        Client();
-        ~Client();
-        bool isOpen();
-        void wait_for_engine();
-        bool pollEvent(sf::Event& event);
         void handleEvent(sf::Event& event);
         void update();
-        void after_init();
+        bool on = true;
+    public:
+        void thread_main();
 };
-
 
 #endif //SFMLOPENGL_CLIENT_HPP

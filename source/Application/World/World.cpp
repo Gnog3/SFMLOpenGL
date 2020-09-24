@@ -25,7 +25,7 @@ void World::placeBlockSendData(uint8_t id, sf::Vector3<int64_t> position) {
     engineTask.chunkPosition = offsetPosition;
     engineTask.vertexData = std::move(chunkVertexData.vertexData);
     engineTask.indexData = std::move(chunkVertexData.indexData);
-    engine.newTask(std::move(engineTask));
+    P::Engine().newTask(std::move(engineTask));
 }
 void World::removeBlockSendData(sf::Vector3<int64_t> position) {
     Chunk* chunk;
@@ -42,14 +42,15 @@ void World::removeBlockSendData(sf::Vector3<int64_t> position) {
     engineTask.chunkPosition = offsetPosition;
     engineTask.vertexData = std::move(chunkVertexData.vertexData);
     engineTask.indexData = std::move(chunkVertexData.indexData);
-    engine.newTask(std::move(engineTask));
+    P::Engine().newTask(std::move(engineTask));
 }
 void World::thread_main() {
     std::cout << "World thread started." << std::endl;
-    while (!stopRequire) {
+    set_inited();
+    while (isOn()) {
         WorldTask worldTask;
         externalQueue.wait_dequeue(worldTask);
-        if (stopRequire) break;
+        if (!isOn()) break;
         if (worldTask.type == WorldTaskType::SingleBlockPlace) {
             placeBlockSendData(1, worldTask.position);
         } else if (worldTask.type == WorldTaskType::SingleBlockRemove) {
@@ -136,25 +137,7 @@ RayCastResult World::rayCast(sf::Vector3<double> position, sf::Vector3f directio
     ret.isFound = false;
     return ret;
 }
-World::World(Engine& engine) : engine(engine) {
-
-}
 World::~World() = default;
-void World::start_thread() {
-    thread.emplace(&World::thread_main, this);
-}
-void World::requireStop() {
-    stopRequire = true;
-    WorldTask worldTask;
-    worldTask.type = WorldTaskType::WorldThreadStop;
-    externalQueue.enqueue(std::move(worldTask));
-}
-void World::waitStop() {
-    requireStop();
-    if (thread) {
-        thread->join();
-    }
-}
 void World::newTask(WorldTask&& worldTask) {
     externalQueue.enqueue(std::move(worldTask));
 }
@@ -162,5 +145,14 @@ void World::oneBlock(WorldTaskType worldTaskType, sf::Vector3<int64_t> position)
     WorldTask worldTask;
     worldTask.position = position;
     worldTask.type = worldTaskType;
+    newTask(std::move(worldTask));
+}
+void World::start_thread() {
+    Thready::start_thread(&World::thread_main, this);
+}
+void World::require_stop() {
+    Thready::require_stop();
+    WorldTask worldTask;
+    worldTask.type = WorldTaskType::WorldThreadStop;
     newTask(std::move(worldTask));
 }

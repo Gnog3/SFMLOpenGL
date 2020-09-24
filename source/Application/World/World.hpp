@@ -9,12 +9,14 @@
 #include <SFML/Graphics.hpp>
 #include <glm.hpp>
 #include <GL/glew.h>
+#include <blockingconcurrentqueue.h>
 #include "Chunk/Chunk.hpp"
 #include "ChunkMap.hpp"
 #include "Crosshair/Crosshair.hpp"
 #include "../Engine/Engine.hpp"
-#include <blockingconcurrentqueue.h>
-
+#include "../GlobalRef.hpp"
+// Requires nothing for construction
+// Requires engine for thread
 struct RayCastResult {
     sf::Vector3<double> end;
     sf::Vector3<int64_t> iend;
@@ -35,35 +37,27 @@ struct WorldTask {
         type = other.type;
         position = other.position;
     }
-    WorldTask& operator=(const WorldTask& other) noexcept {
-        type = other.type;
-        position = other.position;
-        return *this;
-    }
+    WorldTask& operator=(const WorldTask& other) noexcept = default;
 };
 
 class Client;
 
-class World {
+class World : public Thready {
     private:
         ChunkMap chunkMap;
-        Engine& engine;
-        std::optional<std::thread> thread;
-        volatile bool stopRequire = false;
         BlockingConcurrentQueue<WorldTask> externalQueue;
         Block* getBlock(sf::Vector3<int64_t> position);
         void placeBlockSendData(uint8_t id, sf::Vector3<int64_t> position);
         void removeBlockSendData(sf::Vector3<int64_t> position);
         void thread_main();
+        uint8_t chunkSize = 16;
     public:
-        explicit World(Engine& engine);
         ~World();
         RayCastResult rayCast(sf::Vector3<double> position, sf::Vector3f direction, float maxDist);
-        void start_thread();
-        void requireStop();
-        void waitStop();
         void newTask(WorldTask&& worldTask);
         void oneBlock(WorldTaskType worldTaskType, sf::Vector3<int64_t> position);
+        void start_thread();
+        void require_stop() override;
 };
 
 #pragma clang diagnostic pop

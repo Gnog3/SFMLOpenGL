@@ -6,7 +6,7 @@ include_directories(SFML/include glew/include glm/glm ConcurrentQueue ReaderWrit
 link_directories(SFML/lib glew/lib/Release/x64)
 add_definitions(-DDEBUG)
 set(CMAKE_EXE_LINKER_FLAGS "-static-libgcc -static-libstdc++ -static")
-set(CMAKE_CXX_FLAGS "-march=native")
+# set(CMAKE_CXX_FLAGS "-march=native")
 add_executable(SFMLOpenGL
         source/main.cpp
         source/Application/Client.cpp
@@ -40,7 +40,11 @@ add_executable(SFMLOpenGL
         source/Application/Engine/RenderChunkMap.hpp
         source/Application/Engine/RenderChunk/RenderChunk.cpp
         source/Application/Engine/RenderChunk/RenderChunk.hpp
-        source/Application/Engine/PlaneVertex.hpp source/Application/World/ChunkVertexData.hpp)
+        source/Application/Engine/PlaneVertex.hpp
+        source/Application/World/ChunkVertexData.hpp
+        source/Application/GlobalRef.hpp
+        source/Application/GlobalRef.cpp
+        source/Application/Thready.hpp)
 
 
 target_link_libraries(SFMLOpenGL
