@@ -15,6 +15,14 @@ void Client::handleEvent(sf::Event& event) {
             P::Window().setMouseCursorGrabbed(true);
             P::Window().setMouseCursorVisible(false);
             P::Player().setGrabbed(true);
+        }  else if (event.key.code == sf::Keyboard::O) {
+            for (int x = 0; x < 50; x++) {
+                for (int y = 0; y < 50; y++) {
+                    for (int z = 0; z < 50; z++) {
+                        P::World().oneBlock(WorldTaskType::SingleBlockPlace, sf::Vector3<int64_t>(x, y, z));
+                    }
+                }
+            }
         }
     } else if (event.type == sf::Event::MouseMoved && P::Window().hasFocus()) {
         P::Player().computeMatricesMouse(P::Window());

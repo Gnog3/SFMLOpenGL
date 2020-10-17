@@ -21,6 +21,7 @@ class Chunk {
         [[nodiscard]] bool isBlockInside(Vector3l blockPosition) const;
         static bool isBlockInside(sf::Vector3<int8_t> blockPosition);
         static AdjoinsSetFunc getFunc(int offset, int coordinate);
+        static constexpr int getPlane(int sign, int offset);
     public:
         static sf::Vector3i getChunk(Vector3l blockPosition);
         Chunk() = default;
